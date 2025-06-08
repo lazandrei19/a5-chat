@@ -3,7 +3,7 @@
 class InertiaExampleController < ApplicationController
   def index
     render inertia: "InertiaExample", props: {
-      name: params.fetch(:name, "World")
+      logged_in: user_signed_in?
     }
   end
 end
