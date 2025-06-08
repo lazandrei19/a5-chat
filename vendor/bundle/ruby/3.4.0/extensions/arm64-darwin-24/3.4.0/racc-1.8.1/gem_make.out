@@ -1,0 +1,18 @@
+current directory: /Users/andrei/code/a5-chat/vendor/bundle/ruby/3.4.0/gems/racc-1.8.1/ext/racc/cparse
+/nix/store/vh4h10jx976i8vp0ixp3mpl684wwp9hp-ruby-3.4.4/bin/ruby extconf.rb
+creating Makefile
+
+current directory: /Users/andrei/code/a5-chat/vendor/bundle/ruby/3.4.0/gems/racc-1.8.1/ext/racc/cparse
+make DESTDIR\= sitearchdir\=./.gem.20250608-6660-7s24xy sitelibdir\=./.gem.20250608-6660-7s24xy clean
+
+current directory: /Users/andrei/code/a5-chat/vendor/bundle/ruby/3.4.0/gems/racc-1.8.1/ext/racc/cparse
+make DESTDIR\= sitearchdir\=./.gem.20250608-6660-7s24xy sitelibdir\=./.gem.20250608-6660-7s24xy
+compiling cparse.c
+linking shared-object racc/cparse.bundle
+
+current directory: /Users/andrei/code/a5-chat/vendor/bundle/ruby/3.4.0/gems/racc-1.8.1/ext/racc/cparse
+make DESTDIR\= sitearchdir\=./.gem.20250608-6660-7s24xy sitelibdir\=./.gem.20250608-6660-7s24xy install
+install -c -p -m 755 cparse.bundle ./.gem.20250608-6660-7s24xy/racc
+
+current directory: /Users/andrei/code/a5-chat/vendor/bundle/ruby/3.4.0/gems/racc-1.8.1/ext/racc/cparse
+make DESTDIR\= sitearchdir\=./.gem.20250608-6660-7s24xy sitelibdir\=./.gem.20250608-6660-7s24xy clean
