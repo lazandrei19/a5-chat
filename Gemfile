@@ -56,6 +56,7 @@ end
 group :development do
   # Use console on exceptions pages [https://github.com/rails/web-console]
   gem "web-console"
+  gem "solargraph"
 end
 
 group :test do
@@ -63,3 +64,9 @@ group :test do
   gem "capybara"
   gem "selenium-webdriver"
 end
+
+gem "ruby_llm", "~> 1.3"
+
+gem "inertia_rails", "~> 3.8"
+
+gem "vite_rails", "~> 3.0"
