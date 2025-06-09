@@ -10,6 +10,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Chrome, Github } from "lucide-react";
+// @ts-ignore
 import { router } from '@inertiajs/react'
 import { useState } from "react";
 

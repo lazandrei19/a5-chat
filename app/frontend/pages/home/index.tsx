@@ -1,12 +1,14 @@
 import type { FC } from "react";
 import Layout from "../Layout";
+import { ChatLayout } from "@/components/chat";
 
 const Home: FC = () => {
     return (
-        <h1>Hello!</h1>
+        <ChatLayout />
     )
 }
 
+// @ts-ignore
 Home.layout = (page) => {
     return <Layout children={page} />
 }
