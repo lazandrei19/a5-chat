@@ -9,7 +9,8 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { router } from "@inertiajs/react";
+import { Chrome, Github } from "lucide-react";
+import { router } from '@inertiajs/react'
 import { useState } from "react";
 
 export function LoginOrSignup() {
@@ -85,6 +86,10 @@ export function LoginOrSignup() {
           <CardFooter>
             <Button onClick={login}>Login</Button>
           </CardFooter>
+          <div className="flex flex-col space-y-2 p-6">
+            <Button variant="outline"><Chrome className="size-4"/>Login with Google</Button>
+            <Button variant="outline"><Github className="size-4"/>Login with Github</Button>
+          </div>
         </Card>
       </TabsContent>
       <TabsContent value="signup">
@@ -117,6 +122,10 @@ export function LoginOrSignup() {
           <CardFooter>
             <Button onClick={signup}>Sign up</Button>
           </CardFooter>
+          <div className="flex flex-col space-y-2 p-6">
+            <Button variant="outline"><Chrome className="size-4"/>Sign up with Google</Button>
+            <Button variant="outline"><Github className="size-4"/>Sign up with Github</Button>
+          </div>
         </Card>
       </TabsContent>
     </Tabs>
