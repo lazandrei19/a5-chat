@@ -42,7 +42,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_09_092929) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
-  create_table "chats", force: :cascade do |t|
+  create_table "chats", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "model_id"
     t.bigint "user_id", null: false
     t.datetime "created_at", null: false
@@ -51,7 +51,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_09_092929) do
   end
 
   create_table "messages", force: :cascade do |t|
-    t.bigint "chat_id", null: false
+    t.uuid "chat_id", null: false
     t.string "role"
     t.text "content"
     t.string "model_id"
