@@ -17,6 +17,7 @@ import { useState } from "react";
 export function LoginOrSignup() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [activeTab, setActiveTab] = useState("login");
 
   const signup = () => {
     router.post(
@@ -53,8 +54,19 @@ export function LoginOrSignup() {
     );
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (activeTab === 'login') {
+        login();
+      } else {
+        signup();
+      }
+    }
+  };
+
   return (
-    <Tabs defaultValue="login" className="w-[400px]">
+    <Tabs defaultValue="login" className="w-[400px]" onValueChange={setActiveTab}>
       <TabsList className="grid w-full grid-cols-2">
         <TabsTrigger value="login">Login</TabsTrigger>
         <TabsTrigger value="signup">Sign up</TabsTrigger>
@@ -73,6 +85,7 @@ export function LoginOrSignup() {
                 placeholder="email@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                onKeyDown={handleKeyDown}
               />
             </div>
             <div className="space-y-1">
@@ -81,6 +94,7 @@ export function LoginOrSignup() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                onKeyDown={handleKeyDown}
               />
             </div>
           </CardContent>
@@ -109,6 +123,7 @@ export function LoginOrSignup() {
                 placeholder="email@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                onKeyDown={handleKeyDown}
               />
             </div>
             <div className="space-y-1">
@@ -117,6 +132,7 @@ export function LoginOrSignup() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                onKeyDown={handleKeyDown}
               />
             </div>
           </CardContent>
