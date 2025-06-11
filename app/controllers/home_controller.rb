@@ -8,6 +8,40 @@ class HomeController < ApplicationController
 
   def index
     @logged_in = user_signed_in?
+
+    # When a chat ID is present in the route, expose the conversation details
+    # (title, messages, etc.) to the Inertia frontend so it doesn't need to
+    # perform an extra fetch request.
+
+    # params[:id] is only present for the `/chat/:id` route.
+    return unless params[:id].present? && user_signed_in?
+
+    # Load the chat that belongs to the current user (the before_action
+    # `redirect_unauthorized_chat` will already have prevented access to
+    # chats that don't belong to the user).
+    chat = current_user.chats.includes(:messages).find_by(id: params[:id])
+
+    # If the chat cannot be found (e.g., it was deleted), simply return and
+    # let the view render with no conversation selected.
+    return unless chat
+
+    # Selected conversation ID so the frontend knows which chat is active.
+    @selected_conversation = chat.id
+
+    # Conversation title: fall back to a truncated version of the first
+    # message if the chat has no explicit title.
+    @conversation_title = chat.title.presence || chat.messages.first&.content&.truncate(40) || "Chat #{chat.id}"
+
+    # Serialize messages in the shape the React components expect.
+    @messages = chat.messages.order(:created_at).map do |msg|
+      {
+        id: msg.id,
+        content: msg.content,
+        role: msg.role,
+        timestamp: msg.created_at.iso8601,
+        model: msg.model_id
+      }
+    end
   end
 
   private

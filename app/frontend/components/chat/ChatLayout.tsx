@@ -34,15 +34,31 @@ export interface ChatLayoutProps {
 
 export const ChatLayout: React.FC<ChatLayoutProps> = ({ children }) => {
   const page = usePage();
-  const { chats: initialChats } = page.props as { chats: Conversation[] };
+
+  // Destructure the props provided by the server (via Inertia).
+  const {
+    chats: initialChats,
+    messages: pageMessages = [],
+    selected_conversation: selectedConversationProp = '',
+    conversation_title: conversationTitleProp = ''
+  } = page.props as {
+    chats: Conversation[];
+    messages?: Message[];
+    selected_conversation?: string;
+    conversation_title?: string;
+  };
 
   // Extract conversation ID from the current URL if present, e.g. /chat/<uuid>
   const match = (page as any).url?.match?.(/^\/chat\/(.+)/);
   const urlConversationId = match ? match[1] : '';
 
   const [conversations, setConversations] = useState<Conversation[]>(initialChats || []);
-  const [selectedConversation, setSelectedConversation] = useState<string>(urlConversationId);
-  const [messages, setMessages] = useState<Message[]>([]);
+
+  // Local state for the active conversation (for immediate UI feedback).
+  const [selectedConversation, setSelectedConversation] = useState<string>(
+    selectedConversationProp || urlConversationId
+  );
+
   const [searchQuery, setSearchQuery] = useState('');
 
   // Select first conversation whenever conversation list changes (initial load or prop update)
@@ -52,33 +68,31 @@ export const ChatLayout: React.FC<ChatLayoutProps> = ({ children }) => {
     }
   }, [conversations]);
 
-  // Keep selectedConversation in sync with URL on subsequent page visits
+  // Sync local selectedConversation when the server sends a new active ID
+  useEffect(() => {
+    if (selectedConversationProp && selectedConversationProp !== selectedConversation) {
+      setSelectedConversation(selectedConversationProp);
+    }
+  }, [selectedConversationProp]);
+
+  // Also keep selectedConversation in sync with URL changes (e.g. browser nav).
   useEffect(() => {
     if (urlConversationId && urlConversationId !== selectedConversation) {
       setSelectedConversation(urlConversationId);
     }
   }, [urlConversationId]);
 
-  // Fetch messages whenever the selected conversation changes
-  useEffect(() => {
-    if (!selectedConversation) return;
-
-    fetch(`/api/v1/chats/${selectedConversation}`)
-      .then((res) => res.json())
-      .then((data) => setMessages(data.messages || []))
-      .catch((err) => console.error('Failed to fetch messages', err));
-  }, [selectedConversation]);
-
   const filteredConversations = conversations.filter((conv: Conversation) =>
     conv.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const conversationTitle =
+    conversationTitleProp ||
     conversations.find((c) => c.id === selectedConversation)?.title || 'Chat';
 
   // Prepare the props we want to forward to the page component (child)
   const forwardedProps = {
-    messages,
+    messages: pageMessages,
     selectedConversation,
     conversationTitle,
     availableModels
