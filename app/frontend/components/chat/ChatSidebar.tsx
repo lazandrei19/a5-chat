@@ -1,4 +1,6 @@
 import React from 'react';
+// @ts-ignore - Link type may not yet exist in our Inertia typings
+import { Link } from '@inertiajs/react';
 import { Search, Plus, Settings, User, Ellipsis } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -52,11 +54,12 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
             </div>
           ) : (
             conversations.map((conversation) => (
-              <div
+              <Link
+                href={`/chat/${conversation.id}`}
                 key={conversation.id}
                 onClick={() => onSelectConversation(conversation.id)}
                 className={`
-                  p-3 rounded-lg cursor-pointer transition-colors mb-2
+                  block p-3 rounded-lg cursor-pointer transition-colors mb-2
                   ${selectedConversation === conversation.id
                     ? 'bg-blue-50 border border-blue-200'
                     : 'hover:bg-gray-50'
@@ -78,7 +81,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
                     <Ellipsis className="h-4 w-4 text-gray-500" />
                   </Button>
                 </div>
-              </div>
+              </Link>
             ))
           )}
         </div>

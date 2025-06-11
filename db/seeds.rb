@@ -39,7 +39,11 @@ ActiveRecord::Base.transaction do
     ]
 
     chats_data.each do |chat_data|
-      chat = Chat.create!(user: user, model_id: chat_data[:messages].last[:model_id] || 'gpt-4')
+      chat = Chat.create!(
+        user: user,
+        model_id: chat_data[:messages].last[:model_id] || 'gpt-4',
+        title: chat_data[:title]
+      )
 
       chat_data[:messages].each do |msg|
         Message.create!(chat: chat, role: msg[:role], content: msg[:content], model_id: msg[:model_id])

@@ -26,4 +26,7 @@ Rails.application.routes.draw do
 
   # Defines the root path route ("/")
   root "home#index"
+
+  # Inertia frontend route for individual chats
+  get "chat/:id", to: "home#index", as: :chat
 end

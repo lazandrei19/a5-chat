@@ -44,6 +44,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_09_092929) do
 
   create_table "chats", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "model_id"
+    t.string "title"
     t.bigint "user_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false

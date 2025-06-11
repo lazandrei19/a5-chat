@@ -7,4 +7,12 @@ class ApplicationController < ActionController::Base
       logged_in: user_signed_in?
     }
   end
+
+  inertia_share chats: -> {
+    if user_signed_in?
+      current_user.chats.select(:id, :title, :created_at)
+    else
+      []
+    end
+  }
 end
