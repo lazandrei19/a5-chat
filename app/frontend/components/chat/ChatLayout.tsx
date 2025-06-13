@@ -22,10 +22,11 @@ export interface Message {
 }
 
 const availableModels = [
+  { id: 'google/gemini-2.5-flash-preview-05-20', name: 'Gemini 2.5 Flash' },
   { id: 'gpt-4', name: 'GPT-4' },
   { id: 'gpt-3.5-turbo', name: 'GPT-3.5 Turbo' },
-  { id: 'claude-3.5', name: 'Claude-3.5 Sonnet' },
-  { id: 'claude-3', name: 'Claude-3 Opus' }
+  { id: 'claude-3.5', name: 'Claude 3.5 Sonnet' },
+  { id: 'claude-3', name: 'Claude 3 Opus' }
 ];
 
 export interface ChatLayoutProps {

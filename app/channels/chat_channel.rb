@@ -1,0 +1,39 @@
+class ChatChannel < ApplicationCable::Channel
+  # Called when the consumer has successfully
+  # become a subscriber of this channel.
+  def subscribed
+    chat = current_user.chats.find_by(id: params[:chat_id])
+    reject unless chat
+
+    # Stream updates scoped to this specific chat record
+    stream_for chat
+  end
+
+  # Client-side performs "send_message" with:
+  # { chat_id: <uuid>, content: <string>, model_id: <string> }
+  def send_message(data)
+    chat_id   = data["chat_id"]
+    content   = (data["content"] || "").to_s.strip
+    model_id  = data["model_id"]
+
+    return if content.blank?
+
+    chat = current_user.chats.find_by(id: chat_id)
+    return unless chat
+
+    # Optimistically broadcast the user message so it appears instantly
+    user_message = {
+      id: SecureRandom.uuid,
+      content: content,
+      role: "user",
+      timestamp: Time.current.iso8601,
+      model: nil
+    }
+    ChatChannel.broadcast_to(chat, type: "new_message", message: user_message)
+
+    # Kick off background job which will:
+    #   1. Persist the conversation via RubyLLM
+    #   2. Stream the assistant response back to this channel
+    ChatStreamJob.perform_later(chat.id, content, model_id)
+  end
+end

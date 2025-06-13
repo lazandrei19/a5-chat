@@ -27,6 +27,9 @@ Rails.application.routes.draw do
   # Defines the root path route ("/")
   root "home#index"
 
+  # WebSocket endpoint for ActionCable
+  mount ActionCable.server => "/cable"
+
   # Inertia frontend route for individual chats
   get "chat/:id", to: "home#index", as: :chat
 end

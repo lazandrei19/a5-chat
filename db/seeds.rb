@@ -24,16 +24,16 @@ ActiveRecord::Base.transaction do
         title: 'React Best Practices',
         messages: [
           { role: 'user', content: 'What are some React best practices I should follow?' },
-          { role: 'assistant', content: 'Here are some key React best practices:\n\n1. Use functional components with hooks\n2. Keep components small and focused\n3. Use proper state management\n4. Optimize re-renders\n5. Follow naming conventions', model_id: 'gpt-4' },
+          { role: 'assistant', content: 'Here are some key React best practices:\n\n1. Use functional components with hooks\n2. Keep components small and focused\n3. Use proper state management\n4. Optimize re-renders\n5. Follow naming conventions', model_id: 'google/gemini-2.5-flash-preview-05-20' },
           { role: 'user', content: 'Can you explain more about useEffect best practices?' },
-          { role: 'assistant', content: 'Certainly! Always add dependencies, clean up side-effects, separate concerns, and avoid infinite loops.', model_id: 'gpt-4' }
+          { role: 'assistant', content: 'Certainly! Always add dependencies, clean up side-effects, separate concerns, and avoid infinite loops.', model_id: 'google/gemini-2.5-flash-preview-05-20' }
         ]
       },
       {
         title: 'TypeScript Question',
         messages: [
           { role: 'user', content: 'How do I type this generic function in TypeScript?' },
-          { role: 'assistant', content: 'Use generics like so:\n\n```typescript\nfunction myFn<T>(param: T): T { return param; }\n```', model_id: 'claude-3.5' }
+          { role: 'assistant', content: 'Use generics like so:\n\n```typescript\nfunction myFn<T>(param: T): T { return param; }\n```', model_id: 'google/gemini-2.5-flash-preview-05-20' }
         ]
       }
     ]
@@ -41,7 +41,7 @@ ActiveRecord::Base.transaction do
     chats_data.each do |chat_data|
       chat = Chat.create!(
         user: user,
-        model_id: chat_data[:messages].last[:model_id] || 'gpt-4',
+        model_id: chat_data[:messages].last[:model_id] || 'google/gemini-2.5-flash-preview-05-20',
         title: chat_data[:title]
       )
 

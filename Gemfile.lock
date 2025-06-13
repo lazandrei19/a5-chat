@@ -439,6 +439,7 @@ DEPENDENCIES
   capybara
   debug
   devise (~> 4.9)
+  dotenv (~> 3.1)
   importmap-rails
   inertia_rails (~> 3.8)
   jbuilder

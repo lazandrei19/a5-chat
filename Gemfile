@@ -72,3 +72,5 @@ gem "vite_rails", "~> 3.0"
 gem "devise", "~> 4.9"
 
 gem "omniauth", "~> 2.1"
+
+gem "dotenv", "~> 3.1"

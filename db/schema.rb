@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_06_09_092929) do
+ActiveRecord::Schema[8.0].define(version: 2025_06_13_115241) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -63,6 +63,17 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_09_092929) do
     t.index ["chat_id"], name: "index_messages_on_chat_id"
   end
 
+  create_table "tool_calls", force: :cascade do |t|
+    t.bigint "message_id", null: false
+    t.string "tool_call_id"
+    t.string "name"
+    t.jsonb "arguments"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["message_id"], name: "index_tool_calls_on_message_id"
+    t.index ["tool_call_id"], name: "index_tool_calls_on_tool_call_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -80,4 +91,5 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_09_092929) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "chats", "users", on_delete: :cascade
   add_foreign_key "messages", "chats", on_delete: :cascade
+  add_foreign_key "tool_calls", "messages"
 end
