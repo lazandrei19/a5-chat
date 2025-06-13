@@ -67,9 +67,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
       { channel: 'ChatChannel', chat_id: selectedConversation },
       {
         received: (data: any) => {
-          if (data.type === 'new_message') {
-            setLocalMessages((prev) => [...prev, data.message]);
-          } else if (data.type === 'stream') {
+          if (data.type === 'stream') {
             setLocalMessages((prev) => {
               const idx = prev.findIndex((m) => m.id === data.message_id);
               if (idx === -1) {
@@ -91,13 +89,25 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
               );
             });
           } else if (data.type === 'final') {
+            console.log('Final message received:', data.message);
             setLocalMessages((prev) => {
               const idx = prev.findIndex((m) => m.id === data.message.id);
+              console.log('Found existing message at index:', idx);
               if (idx === -1) {
+                // If message not found, just add it
+                console.log('Adding new final message');
                 return [...prev, data.message];
               }
+              // Replace the existing message, but ensure we preserve content if final message is empty
+              const existingMessage = prev[idx];
+              console.log('Existing message content length:', existingMessage.content?.length);
+              console.log('Final message content length:', data.message.content?.length);
+              const finalMessage = {
+                ...data.message,
+                content: data.message.content || existingMessage.content // Preserve existing content if final is empty
+              };
               const newArr = [...prev];
-              newArr[idx] = data.message;
+              newArr[idx] = finalMessage;
               return newArr;
             });
           } else if (data.type === 'error') {

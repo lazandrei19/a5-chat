@@ -21,15 +21,6 @@ class ChatChannel < ApplicationCable::Channel
     chat = current_user.chats.find_by(id: chat_id)
     return unless chat
 
-    # Optimistically broadcast the user message so it appears instantly
-    user_message = {
-      id: SecureRandom.uuid,
-      content: content,
-      role: "user",
-      timestamp: Time.current.iso8601,
-      model: nil
-    }
-    ChatChannel.broadcast_to(chat, type: "new_message", message: user_message)
 
     # Kick off background job which will:
     #   1. Persist the conversation via RubyLLM
