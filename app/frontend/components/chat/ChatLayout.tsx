@@ -110,7 +110,7 @@ export const ChatLayout: React.FC<ChatLayoutProps> = ({ children }) => {
       />
 
       {/* Main content area where the active chat (child) will be rendered */}
-      <div className="flex-1 h-full">
+      <div className="flex-1 h-full bg-white">
         {isValidElement(children)
           ? cloneElement(children as React.ReactElement<any>, forwardedProps)
           : children}

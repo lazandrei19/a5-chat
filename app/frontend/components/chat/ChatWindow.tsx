@@ -223,22 +223,22 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
   return (
     <div className="flex-1 flex flex-col h-screen bg-white">
       {/* Header */}
-      <div className="border-b border-gray-200 p-4">
+      <div className="border-b border-gray-200 px-6 py-5">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-semibold text-gray-900">{conversationTitle}</h2>
-            <p className="text-sm text-gray-500">{localMessages.length} messages</p>
+            <h2 className="text-xl font-semibold text-gray-900">{conversationTitle}</h2>
+            <p className="text-sm text-gray-500 mt-1">{localMessages.length} messages</p>
           </div>
         </div>
       </div>
 
       {/* Messages Area */}
-      <div ref={messagesContainerRef} className="flex-1 overflow-y-auto">
+      <div ref={messagesContainerRef} className="flex-1 overflow-y-auto bg-gray-50/30">
         {localMessages.length === 0 ? (
-          <div className="flex items-center justify-center h-full p-4">
-            <div className="text-center text-gray-500">
-              <p className="text-lg mb-2">Start a conversation</p>
-              <p className="text-sm">Choose a model and send your first message</p>
+          <div className="flex items-center justify-center h-full p-6">
+            <div className="text-center text-gray-500 max-w-md">
+              <p className="text-lg font-medium mb-2 text-gray-700">Start a conversation</p>
+              <p className="text-sm text-gray-500">Choose a model and send your first message to begin chatting</p>
             </div>
           </div>
         ) : (
@@ -256,20 +256,20 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
       </div>
 
       {/* Input Area */}
-      <div className="border-t border-gray-200 p-4">
-        <div className="flex items-end space-x-3">
+      <div className="border-t border-gray-200 bg-white px-6 py-4">
+        <div className="flex items-start space-x-4 max-w-4xl mx-auto">
           {/* Model Selector */}
-          <div className="relative">
+          <div className="relative flex-shrink-0">
             <button
               onClick={() => setIsModelDropdownOpen(!isModelDropdownOpen)}
-              className="flex items-center space-x-2 px-3 py-2 text-sm font-medium text-gray-700 bg-gray-50 border border-gray-300 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex items-center justify-center space-x-2 px-4 h-12 text-sm font-medium text-gray-700 bg-gray-50 border border-gray-300 rounded-xl hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
             >
               <span>{selectedModelName}</span>
               <ChevronDown className="h-4 w-4" />
             </button>
             
             {isModelDropdownOpen && (
-              <div className="absolute bottom-full mb-2 left-0 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+              <div className="absolute bottom-full mb-2 left-0 w-56 bg-white border border-gray-200 rounded-xl shadow-lg z-10 overflow-hidden">
                 <div className="py-1">
                   {availableModels.map((model) => (
                     <button
@@ -278,8 +278,8 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
                         setSelectedModel(model.id);
                         setIsModelDropdownOpen(false);
                       }}
-                      className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 ${
-                        selectedModel === model.id ? 'bg-blue-50 text-blue-600' : 'text-gray-900'
+                      className={`w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 transition-colors ${
+                        selectedModel === model.id ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-900'
                       }`}
                     >
                       {model.name}
@@ -292,26 +292,30 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
 
           {/* Message Input */}
           <div className="flex-1 relative">
-            <textarea
-              ref={textareaRef}
-              placeholder="Type your message... (Press Enter to send, Shift+Enter for new line)"
-              value={newMessage}
-              onChange={(e) => {
-                setNewMessage(e.target.value);
-                adjustTextareaHeight();
-              }}
-              onKeyDown={handleKeyPress}
-              className="w-full min-h-[44px] max-h-[120px] resize-none rounded-lg border border-gray-300 px-3 py-2 pr-12 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              rows={1}
-            />
-            <Button
-              onClick={handleSendMessage}
-              disabled={!newMessage.trim()}
-              size="sm"
-              className="absolute right-2 bottom-2 p-2"
-            >
-              <Send className="h-4 w-4" />
-            </Button>
+            <div className="relative flex items-center">
+              <textarea
+                ref={textareaRef}
+                placeholder="Type your message... (Press Enter to send, Shift+Enter for new line)"
+                value={newMessage}
+                onChange={(e) => {
+                  setNewMessage(e.target.value);
+                  adjustTextareaHeight();
+                }}
+                onKeyDown={handleKeyPress}
+                className="w-full min-h-[48px] max-h-[120px] resize-none rounded-xl border border-gray-300 px-4 py-3 pr-14 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                rows={1}
+                style={{ height: '48px' }}
+              />
+              <Button
+                onClick={handleSendMessage}
+                disabled={!newMessage.trim()}
+                size="sm"
+                className="absolute right-2 h-8 w-8 p-0 rounded-lg"
+                style={{ top: '50%', transform: 'translateY(-50%)' }}
+              >
+                <Send className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </div>
       </div>
