@@ -37,9 +37,30 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
   );
   const [isModelDropdownOpen, setIsModelDropdownOpen] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
 
   // Maintain a local copy of the messages so we can update as streams arrive
   const [localMessages, setLocalMessages] = useState<Message[]>(messages);
+
+  // Function to scroll to bottom of messages
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'instant' });
+  };
+
+  // Function to scroll so a specific message appears at the top of the viewport
+  const scrollToShowMessageAtTop = (messageId: string) => {
+    const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
+    if (messageElement && messagesContainerRef.current) {
+      const container = messagesContainerRef.current;
+      const messageRect = messageElement.getBoundingClientRect();
+      const containerRect = container.getBoundingClientRect();
+      
+      // Calculate the scroll position to put the message at the top
+      const scrollTop = container.scrollTop + (messageRect.top - containerRect.top);
+      container.scrollTop = scrollTop;
+    }
+  };
 
   // Keep localMessages in sync when the prop changes (e.g., page navigation)
   useEffect(() => {
@@ -50,7 +71,12 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
     if (lastModel && lastModel !== selectedModel) {
       setSelectedModel(lastModel);
     }
+
+    // Scroll to bottom when messages change (conversation loaded)
+    setTimeout(scrollToBottom, 100);
   }, [messages]);
+
+  // Don't auto-scroll on all message changes - we'll handle this manually when sending messages
 
   // ActionCable subscription, re-establish whenever the selected conversation changes
   const subscriptionRef = useRef<any>(null);
@@ -150,8 +176,9 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
     if (!trimmed) return;
 
     // Optimistically add the user message to the UI immediately
+    const messageId = `${Date.now()}`;
     const optimistic: Message = {
-      id: `${Date.now()}`,
+      id: messageId,
       content: trimmed,
       role: 'user',
       timestamp: new Date().toISOString(),
@@ -167,6 +194,9 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
     }
+
+    // Scroll to show the user's message at the top of the viewport
+    setTimeout(() => scrollToShowMessageAtTop(messageId), 50);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -203,7 +233,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
       </div>
 
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto">
+      <div ref={messagesContainerRef} className="flex-1 overflow-y-auto">
         {localMessages.length === 0 ? (
           <div className="flex items-center justify-center h-full p-4">
             <div className="text-center text-gray-500">
@@ -219,6 +249,8 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
                 message={message}
               />
             ))}
+            {/* Invisible div to scroll to */}
+            <div ref={messagesEndRef} />
           </div>
         )}
       </div>

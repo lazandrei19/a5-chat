@@ -31,6 +31,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
     return (
       <div 
         className="group relative mb-6 px-4 py-3 hover:bg-gray-50/50 transition-colors duration-200"
+        data-message-id={message.id}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
@@ -78,6 +79,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
   return (
     <div 
       className="group relative mb-6 px-4 py-3 hover:bg-gray-50/50 transition-colors duration-200"
+      data-message-id={message.id}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
