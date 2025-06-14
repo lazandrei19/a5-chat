@@ -221,17 +221,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
   const selectedModelName = availableModels.find(m => m.id === selectedModel)?.name || 'Select Model';
 
   return (
-    <div className="flex-1 flex flex-col h-screen bg-white">
-      {/* Header */}
-      <div className="border-b border-gray-200 px-6 py-5">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-xl font-semibold text-gray-900">{conversationTitle}</h2>
-            <p className="text-sm text-gray-500 mt-1">{localMessages.length} messages</p>
-          </div>
-        </div>
-      </div>
-
+    <div className="flex-1 flex flex-col h-screen bg-white pt-8">
       {/* Messages Area */}
       <div ref={messagesContainerRef} className="flex-1 overflow-y-auto bg-gray-50/30">
         {localMessages.length === 0 ? (
