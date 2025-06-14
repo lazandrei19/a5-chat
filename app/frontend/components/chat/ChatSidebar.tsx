@@ -12,6 +12,9 @@ interface ChatSidebarProps {
   onSelectConversation: (id: string) => void;
   searchQuery: string;
   onSearchChange: (query: string) => void;
+  isCollapsed?: boolean;
+  onToggleCollapse?: () => void;
+  isMobile?: boolean;
 }
 
 export const ChatSidebar: React.FC<ChatSidebarProps> = ({
@@ -19,10 +22,13 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
   selectedConversation,
   onSelectConversation,
   searchQuery,
-  onSearchChange
+  onSearchChange,
+  isCollapsed = false,
+  onToggleCollapse,
+  isMobile = false
 }) => {
   return (
-    <div className="w-80 bg-white border-r border-gray-200 flex flex-col h-screen">
+    <div className="w-full bg-white border-r border-gray-200 flex flex-col h-screen">
       {/* Header */}
       <div className="px-6 py-5 border-b border-gray-200">
         <div className="flex items-center justify-between mb-4">
@@ -57,7 +63,16 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
               <Link
                 href={`/chat/${conversation.id}`}
                 key={conversation.id}
-                onClick={() => onSelectConversation(conversation.id)}
+                onClick={(e: React.MouseEvent) => {
+                  // Always call the conversation selection handler
+                  onSelectConversation(conversation.id);
+                  
+                  // If this is the currently selected conversation, prevent navigation
+                  // to avoid unnecessary page reloads
+                  if (selectedConversation === conversation.id) {
+                    e.preventDefault();
+                  }
+                }}
                 className={`
                   block p-3 mx-1 rounded-xl cursor-pointer transition-all duration-200 mb-1 group
                   ${selectedConversation === conversation.id

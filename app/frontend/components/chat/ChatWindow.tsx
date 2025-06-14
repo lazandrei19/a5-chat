@@ -259,9 +259,9 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
   const selectedModelName = availableModels.find(m => m.id === selectedModel)?.name || 'Select Model';
 
   return (
-    <div className="flex-1 flex flex-col h-screen bg-white pt-8">
+    <div className="flex-1 flex flex-col h-full bg-white min-h-0">
       {/* Messages Area */}
-      <div ref={messagesContainerRef} className="flex-1 overflow-y-auto bg-gray-50/30">
+      <div ref={messagesContainerRef} className="flex-1 overflow-y-auto bg-gray-50/30 min-h-0">
         {localMessages.length === 0 ? (
           <div className="flex items-center justify-center h-full p-6">
             <div className="text-center text-gray-500 max-w-md">
@@ -284,7 +284,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
       </div>
 
       {/* Input Area */}
-      <div className="border-t border-gray-200 bg-white px-6 py-4">
+      <div className="border-t border-gray-200 bg-white px-6 py-4 flex-shrink-0">
         <div className="flex items-start space-x-4 max-w-4xl mx-auto">
           {/* Model Selector */}
           <div className="relative flex-shrink-0">

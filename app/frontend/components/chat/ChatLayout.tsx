@@ -3,6 +3,9 @@ import React, { useEffect, useState, cloneElement, isValidElement } from 'react'
 import { ChatSidebar } from './ChatSidebar';
 // @ts-ignore
 import { usePage } from '@inertiajs/react';
+import { Menu } from 'lucide-react';
+import { Button } from '../ui/button';
+import { Sheet, SheetContent } from '../ui/sheet';
 
 // Types for conversations and messages coming from the backend
 export interface Conversation {
@@ -61,6 +64,10 @@ export const ChatLayout: React.FC<ChatLayoutProps> = ({ children }) => {
   );
 
   const [searchQuery, setSearchQuery] = useState('');
+  
+  // Sidebar state management
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isMobileSheetOpen, setIsMobileSheetOpen] = useState(false);
 
   // Select first conversation whenever conversation list changes (initial load or prop update)
   useEffect(() => {
@@ -83,6 +90,55 @@ export const ChatLayout: React.FC<ChatLayoutProps> = ({ children }) => {
     }
   }, [urlConversationId]);
 
+  // Handle responsive behavior - collapse sidebar on small screens by default
+  const [wasCollapsedByUser, setWasCollapsedByUser] = useState(false);
+  
+  useEffect(() => {
+    const handleResize = () => {
+      const isMobile = window.innerWidth < 768; // md breakpoint
+      if (isMobile) {
+        setIsSidebarCollapsed(true);
+        // Close mobile sheet if it's open when resizing to mobile
+        setIsMobileSheetOpen(false);
+      } else {
+        // On desktop, only show the sidebar by default if it wasn't manually collapsed by the user
+        if (isSidebarCollapsed && window.innerWidth >= 768 && !wasCollapsedByUser) {
+          setIsSidebarCollapsed(false);
+        }
+      }
+    };
+
+    // Set initial state
+    handleResize();
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [isSidebarCollapsed, wasCollapsedByUser]);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Cmd/Ctrl + B to toggle sidebar on desktop
+      if ((event.metaKey || event.ctrlKey) && event.key === 'b') {
+        event.preventDefault();
+        if (window.innerWidth >= 768) {
+          const newCollapsedState = !isSidebarCollapsed;
+          setIsSidebarCollapsed(newCollapsedState);
+          setWasCollapsedByUser(newCollapsedState);
+        } else {
+          setIsMobileSheetOpen(!isMobileSheetOpen);
+        }
+      }
+      // Escape to close mobile sheet
+      if (event.key === 'Escape' && isMobileSheetOpen) {
+        setIsMobileSheetOpen(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isSidebarCollapsed, isMobileSheetOpen, wasCollapsedByUser]);
+
   const filteredConversations = conversations.filter((conv: Conversation) =>
     conv.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -99,21 +155,104 @@ export const ChatLayout: React.FC<ChatLayoutProps> = ({ children }) => {
     availableModels
   } as const;
 
-  return (
-    <div className="flex h-screen bg-gray-50">
-      <ChatSidebar
-        conversations={filteredConversations}
-        selectedConversation={selectedConversation}
-        onSelectConversation={setSelectedConversation}
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-      />
+  const handleConversationSelect = (id: string) => {
+    setSelectedConversation(id);
+    // Close mobile sheet when conversation is selected
+    setIsMobileSheetOpen(false);
+  };
 
-      {/* Main content area where the active chat (child) will be rendered */}
-      <div className="flex-1 h-full bg-white">
-        {isValidElement(children)
-          ? cloneElement(children as React.ReactElement<any>, forwardedProps)
-          : children}
+  const sidebarProps = {
+    conversations: filteredConversations,
+    selectedConversation,
+    onSelectConversation: handleConversationSelect,
+    searchQuery,
+    onSearchChange: setSearchQuery,
+    isCollapsed: isSidebarCollapsed,
+    onToggleCollapse: () => setIsSidebarCollapsed(!isSidebarCollapsed)
+  };
+
+  const mobileSidebarProps = {
+    ...sidebarProps,
+    isMobile: true
+  };
+
+  return (
+    <div className="flex h-screen bg-gray-50 overflow-hidden">
+      {/* Desktop Sidebar */}
+      <div className={`hidden md:flex transition-all duration-300 ease-in-out ${
+        isSidebarCollapsed ? 'w-0' : 'w-80'
+      }`}>
+        <div className={`${isSidebarCollapsed ? 'hidden' : 'block'} w-80 transition-opacity duration-300 ${
+          isSidebarCollapsed ? 'opacity-0' : 'opacity-100'
+        }`}>
+          <ChatSidebar {...sidebarProps} />
+        </div>
+      </div>
+
+      {/* Mobile Sheet Sidebar */}
+      <Sheet open={isMobileSheetOpen} onOpenChange={setIsMobileSheetOpen}>
+        <SheetContent side="left" className="w-80 p-0 md:hidden">
+          <ChatSidebar {...mobileSidebarProps} />
+        </SheetContent>
+      </Sheet>
+
+      {/* Main content area */}
+      <div className="flex-1 h-full bg-white flex flex-col min-w-0 overflow-hidden">
+        {/* Mobile Header with Menu Button */}
+        <div className="md:hidden flex items-center justify-between p-4 border-b border-gray-200 bg-white flex-shrink-0">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setIsMobileSheetOpen(true);
+            }}
+            className="h-9 w-9 p-0 hover:bg-gray-100"
+            title="Open sidebar"
+            type="button"
+          >
+            <Menu className="h-5 w-5" />
+          </Button>
+          <h1 className="text-lg font-semibold text-gray-900 truncate">
+            {conversationTitle}
+          </h1>
+          <div className="w-9" /> {/* Spacer for centering */}
+        </div>
+
+        {/* Desktop Header with Toggle Button */}
+        <div className="hidden md:flex items-center justify-between p-4 border-b border-gray-200 bg-white flex-shrink-0">
+          <div className="flex items-center space-x-3">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Desktop hamburger clicked, current collapsed state:', isSidebarCollapsed);
+                const newCollapsedState = !isSidebarCollapsed;
+                setIsSidebarCollapsed(newCollapsedState);
+                setWasCollapsedByUser(newCollapsedState);
+                console.log('Setting collapsed state to:', newCollapsedState);
+              }}
+              className="h-9 w-9 p-0 hover:bg-gray-100"
+              title={`${isSidebarCollapsed ? 'Show' : 'Hide'} sidebar (⌘B)`}
+              type="button"
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
+            <h1 className="text-lg font-semibold text-gray-900">
+              {conversationTitle}
+            </h1>
+          </div>
+        </div>
+
+        {/* Chat content - This will be independently scrollable */}
+        <div className="flex-1 min-h-0 overflow-hidden">
+          {isValidElement(children)
+            ? cloneElement(children as React.ReactElement<any>, forwardedProps)
+            : children}
+        </div>
       </div>
     </div>
   );

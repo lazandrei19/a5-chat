@@ -10,6 +10,10 @@ The main layout component that orchestrates the entire chat interface. It contai
 **Features:**
 - Manages conversation selection
 - Handles search functionality
+- **Collapsible sidebar with mobile-friendly design**
+- **Responsive behavior - sidebar collapses automatically on mobile**
+- **Keyboard shortcuts (⌘B/Ctrl+B to toggle sidebar)**
+- **Mobile sheet overlay for sidebar on small screens**
 - Contains dummy data for development
 
 ### `ChatSidebar`
@@ -17,6 +21,7 @@ The left sidebar containing:
 - List of conversations with search functionality
 - New chat button
 - User account section with settings button
+- **Supports collapsible state and mobile responsiveness**
 
 ### `ChatWindow`
 The main chat interface containing:
@@ -65,4 +70,14 @@ The interface uses:
 - Tailwind CSS for styling
 - Lucide React for icons
 - Radix UI components for accessible interactions
-- Modern design with proper hover states and transitions 
+- **shadcn/ui Sheet component for mobile sidebar overlay**
+- Modern design with proper hover states and transitions
+- **Smooth animations for sidebar collapse/expand**
+
+## Mobile Responsiveness
+
+The chat interface is fully responsive:
+- **Desktop (≥768px)**: Sidebar can be toggled with button or ⌘B/Ctrl+B
+- **Mobile (<768px)**: Sidebar automatically collapses and opens as an overlay sheet
+- **Automatic responsive behavior** on window resize
+- **Touch-friendly** mobile interface with proper spacing 
