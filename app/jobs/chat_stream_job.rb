@@ -4,11 +4,15 @@ class ChatStreamJob < ApplicationJob
   # @param chat_id [Integer]
   # @param user_content [String]
   # @param model_id [String, nil]
-  def perform(chat_id, user_content, model_id = nil)
+  # @param user_message_id [Integer, nil] - ID of the already-created user message
+  def perform(chat_id, user_content, model_id = nil, user_message_id = nil)
     chat = Chat.find(chat_id)
 
     # Update the model id on the chat if requested by the client
     chat = chat.with_model(model_id) if model_id.present?
+
+    # Note: The user message has already been created and broadcasted by ChatChannel
+    # We just need to process the conversation and stream the assistant response
 
     assistant_message = nil
 

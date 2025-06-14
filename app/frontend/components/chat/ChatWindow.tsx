@@ -23,25 +23,28 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
   conversationTitle,
   availableModels
 }) => {
+  const [localMessages, setLocalMessages] = useState<Message[]>(messages);
   const [newMessage, setNewMessage] = useState('');
-  // Determine initial model: last message model if present, else first available
+  const [isModelDropdownOpen, setIsModelDropdownOpen] = useState(false);
+  const [pendingMessages, setPendingMessages] = useState<Set<string>>(new Set());
+
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
   const getLastModelId = (msgs: Message[]): string | undefined => {
+    // Find the last message with a model_id
     for (let i = msgs.length - 1; i >= 0; i--) {
-      if (msgs[i].model) return msgs[i].model;
+      if (msgs[i].model) {
+        return msgs[i].model;
+      }
     }
     return undefined;
   };
 
-  const [selectedModel, setSelectedModel] = useState(
-    getLastModelId(messages) || availableModels[0]?.id || '',
-  );
-  const [isModelDropdownOpen, setIsModelDropdownOpen] = useState(false);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const messagesContainerRef = useRef<HTMLDivElement>(null);
-
-  // Maintain a local copy of the messages so we can update as streams arrive
-  const [localMessages, setLocalMessages] = useState<Message[]>(messages);
+  // Determine initial model: last message model if present, else first available
+  const initialModel = getLastModelId(messages) || availableModels[0]?.id || 'google/gemini-2.0-flash-thinking-exp-01-21';
+  const [selectedModel, setSelectedModel] = useState<string>(initialModel);
 
   // Function to scroll to bottom of messages
   const scrollToBottom = () => {
@@ -74,9 +77,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
 
     // Scroll to bottom when messages change (conversation loaded)
     setTimeout(scrollToBottom, 100);
-  }, [messages]);
-
-  // Don't auto-scroll on all message changes - we'll handle this manually when sending messages
+  }, [messages, selectedModel]);
 
   // ActionCable subscription, re-establish whenever the selected conversation changes
   const subscriptionRef = useRef<any>(null);
@@ -93,7 +94,41 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
       { channel: 'ChatChannel', chat_id: selectedConversation },
       {
         received: (data: any) => {
-          if (data.type === 'stream') {
+          if (data.type === 'user_message') {
+            // Handle user messages from other tabs
+            setLocalMessages((prev) => {
+              // Check if this message already exists (to avoid duplicates)
+              const existingIndex = prev.findIndex((m) => m.id === data.message.id);
+              if (existingIndex !== -1) {
+                return prev; // Message already exists, don't add duplicate
+              }
+              
+              // Remove any pending optimistic message with similar content and timestamp
+              let removedOptimisticId: string | null = null;
+              const filteredMessages = prev.filter((msg) => {
+                const isOptimistic = msg.id.toString().startsWith('temp_');
+                const isSimilar = msg.content === data.message.content && 
+                                 msg.role === 'user' &&
+                                 Math.abs(new Date(msg.timestamp).getTime() - new Date(data.message.timestamp).getTime()) < 5000;
+                if (isOptimistic && isSimilar) {
+                  removedOptimisticId = msg.id;
+                  return false;
+                }
+                return true;
+              });
+              
+              // Clean up pending messages if we removed an optimistic one
+              if (removedOptimisticId) {
+                setPendingMessages(prev => {
+                  const newSet = new Set(prev);
+                  newSet.delete(removedOptimisticId!);
+                  return newSet;
+                });
+              }
+              
+              return [...filteredMessages, data.message];
+            });
+          } else if (data.type === 'stream') {
             setLocalMessages((prev) => {
               const idx = prev.findIndex((m) => m.id === data.message_id);
               if (idx === -1) {
@@ -175,14 +210,17 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
     const trimmed = newMessage.trim();
     if (!trimmed) return;
 
-    // Optimistically add the user message to the UI immediately
-    const messageId = `${Date.now()}`;
+    // Create a temporary ID for the optimistic message
+    const tempId = `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     const optimistic: Message = {
-      id: messageId,
+      id: tempId,
       content: trimmed,
       role: 'user',
       timestamp: new Date().toISOString(),
     } as Message;
+    
+    // Add to pending messages to track optimistic updates
+    setPendingMessages(prev => new Set([...prev, tempId]));
     setLocalMessages((prev) => [...prev, optimistic]);
 
     // Send to the backend via ActionCable
@@ -196,7 +234,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
     }
 
     // Scroll to show the user's message at the top of the viewport
-    setTimeout(() => scrollToShowMessageAtTop(messageId), 50);
+    setTimeout(() => scrollToShowMessageAtTop(tempId), 50);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {

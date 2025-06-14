@@ -21,10 +21,29 @@ class ChatChannel < ApplicationCable::Channel
     chat = current_user.chats.find_by(id: chat_id)
     return unless chat
 
+    # Create and persist the user message first
+    user_message = chat.messages.create!(
+      role: "user",
+      content: content,
+      model_id: model_id
+    )
+
+    # Broadcast the user message to all connected tabs
+    ChatChannel.broadcast_to(
+      chat,
+      type: "user_message",
+      message: {
+        id: user_message.id.to_s,
+        content: user_message.content,
+        role: "user",
+        timestamp: user_message.created_at.iso8601,
+        model: user_message.model_id
+      }
+    )
 
     # Kick off background job which will:
-    #   1. Persist the conversation via RubyLLM
+    #   1. Process the conversation via RubyLLM (user message already exists)
     #   2. Stream the assistant response back to this channel
-    ChatStreamJob.perform_later(chat.id, content, model_id)
+    ChatStreamJob.perform_later(chat.id, content, model_id, user_message.id)
   end
 end
