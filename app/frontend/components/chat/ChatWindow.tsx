@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
 import { Send, ChevronDown } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Message } from './ChatLayout';
@@ -72,10 +72,21 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
     if (lastModel && lastModel !== selectedModel) {
       setSelectedModel(lastModel);
     }
-
-    // Scroll to bottom when messages change (conversation loaded)
-    setTimeout(scrollToBottom, 100);
   }, [messages, selectedModel]);
+
+  // Scroll to bottom immediately when messages change to prevent visual flash
+  useLayoutEffect(() => {
+    if (messages.length > 0) {
+      scrollToBottom();
+    }
+  }, [messages]);
+
+  // Ensure we start at the bottom when the component first mounts with messages
+  useLayoutEffect(() => {
+    if (messages.length > 0 && messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+    }
+  }, []);
 
   // ActionCable subscription, re-establish whenever the selected conversation changes
   const subscriptionRef = useRef<any>(null);

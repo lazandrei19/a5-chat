@@ -4,19 +4,41 @@ class ChatStreamJob < ApplicationJob
   # @param chat_id [Integer]
   # @param user_content [String]
   # @param model_id [String, nil]
-  # @param user_message_id [Integer, nil] - ID of the already-created user message
-  def perform(chat_id, user_content, model_id = nil, user_message_id = nil)
+  #
+  # Prior to this change, the user message was created in ChatChannel and the
+  # ID was passed in so we could avoid duplication. We now handle persistence
+  # *here* to ensure we only create the record once.
+  def perform(chat_id, user_content, model_id = nil)
     chat = Chat.find(chat_id)
 
     # Update the model id on the chat if requested by the client
     chat = chat.with_model(model_id) if model_id.present?
 
-    # Note: The user message has already been created and broadcasted by ChatChannel
-    # We just need to process the conversation and stream the assistant response
+    # We'll broadcast the user message once RubyLLM persists it. To do that
+    # we grab a reference to it on the first streaming chunk.
 
-    assistant_message = nil
+    user_message_broadcasted = false
+    assistant_message = nil # Keep reference outside the streaming block
 
     chat.ask(user_content) do |chunk|
+      unless user_message_broadcasted
+        user_message = chat.messages.where(role: "user").order(:created_at).last
+        if user_message
+          ChatChannel.broadcast_to(
+            chat,
+            type: "user_message",
+            message: {
+              id: user_message.id.to_s,
+              content: user_message.content,
+              role: "user",
+              timestamp: user_message.created_at.iso8601,
+              model: user_message.model_id
+            }
+          )
+          user_message_broadcasted = true
+        end
+      end
+
       # Fetch the assistant message record only once, after the first chunk arrives
       assistant_message ||= chat.messages.where(role: "assistant").order(:created_at).last
       next unless chunk.content.present? && assistant_message
