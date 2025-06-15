@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Bot, User, Copy, RefreshCw, Edit3 } from 'lucide-react';
+import { Copy, RefreshCw, Edit3 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Message } from './ChatLayout';
 
@@ -18,12 +18,10 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
 
   const handleRegenerate = () => {
     // TODO: Implement regenerate functionality
-    console.log('Regenerating message...');
   };
 
   const handleEdit = () => {
     // TODO: Implement edit functionality
-    console.log('Editing message...');
   };
 
   if (isUser) {

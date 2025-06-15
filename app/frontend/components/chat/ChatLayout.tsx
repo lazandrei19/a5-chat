@@ -229,11 +229,10 @@ export const ChatLayout: React.FC<ChatLayoutProps> = ({ children }) => {
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                console.log('Desktop hamburger clicked, current collapsed state:', isSidebarCollapsed);
+                // Toggle sidebar visibility
                 const newCollapsedState = !isSidebarCollapsed;
                 setIsSidebarCollapsed(newCollapsedState);
                 setWasCollapsedByUser(newCollapsedState);
-                console.log('Setting collapsed state to:', newCollapsedState);
               }}
               className="h-9 w-9 p-0 hover:bg-gray-100"
               title={`${isSidebarCollapsed ? 'Show' : 'Hide'} sidebar (⌘B)`}
