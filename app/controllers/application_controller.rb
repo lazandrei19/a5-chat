@@ -4,7 +4,8 @@ class ApplicationController < ActionController::Base
 
   inertia_share do
     {
-      logged_in: user_signed_in?
+      logged_in: user_signed_in?,
+      llm_models: LlmModels::BaseModel.frontend_options
     }
   end
 
