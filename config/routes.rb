@@ -30,6 +30,10 @@ Rails.application.routes.draw do
   # WebSocket endpoint for ActionCable
   mount ActionCable.server => "/cable"
 
+  # Settings page
+  get "settings", to: "settings#edit", as: :settings
+  patch "settings", to: "settings#update"
+
   # Inertia frontend route for individual chats
   get "chat/:id", to: "home#index", as: :chat
 end

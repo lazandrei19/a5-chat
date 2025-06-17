@@ -1,0 +1,6 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+Don't try to run tests or checks automatically in agent mode. Just look for basic lint errors, I'll let you know everything else

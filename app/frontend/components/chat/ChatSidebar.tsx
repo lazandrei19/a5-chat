@@ -117,8 +117,10 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
               <p className="text-xs text-gray-500 truncate">john@example.com</p>
             </div>
           </div>
-          <Button variant="ghost" size="sm" className="h-9 w-9 p-0">
-            <Settings className="h-4 w-4 text-gray-400" />
+          <Button asChild variant="ghost" size="sm" className="h-9 w-9 p-0">
+            <Link href="/settings">
+              <Settings className="h-4 w-4 text-gray-400" />
+            </Link>
           </Button>
         </div>
       </div>
