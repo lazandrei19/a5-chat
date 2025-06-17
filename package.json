@@ -9,6 +9,9 @@
   },
   "dependencies": {
     "@inertiajs/react": "^2.0.11",
+    "@llm-ui/code": "^0.13.3",
+    "@llm-ui/markdown": "^0.13.3",
+    "@llm-ui/react": "^0.13.3",
     "@radix-ui/react-dialog": "^1.1.14",
     "@radix-ui/react-slot": "^1.2.3",
     "@radix-ui/react-tabs": "^1.1.12",
@@ -21,9 +24,13 @@
     "@vitejs/plugin-react": "^4.5.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "html-react-parser": "^5.2.5",
     "lucide-react": "^0.513.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1",
+    "shiki": "^3.6.0",
     "tailwind-merge": "^3.3.0",
     "tailwindcss": "^4.1.8",
     "typescript": "^5.8.3"

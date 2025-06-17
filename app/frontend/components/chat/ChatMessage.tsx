@@ -2,6 +2,15 @@ import React, { useState } from 'react';
 import { Copy, RefreshCw, Edit3 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Message } from './ChatLayout';
+import {
+  codeBlockLookBack,
+  findCompleteCodeBlock,
+  findPartialCodeBlock,
+} from "@llm-ui/code";
+import { markdownLookBack } from "@llm-ui/markdown";
+import { useLLMOutput } from "@llm-ui/react";
+import MarkdownComponent from '../ui/MarkdownComponent';
+import CodeBlockComponent from '../ui/CodeBlockComponent';
 
 interface ChatMessageProps {
   message: Message;
@@ -73,7 +82,24 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
     );
   }
 
-  // Assistant message - clean left-aligned style
+  // Assistant message - clean left-aligned style with llm-ui rendering
+  const { blockMatches } = useLLMOutput({
+    llmOutput: message.content,
+    fallbackBlock: {
+      component: MarkdownComponent,
+      lookBack: markdownLookBack(),
+    },
+    blocks: [
+      {
+        component: CodeBlockComponent,
+        findCompleteMatch: findCompleteCodeBlock(),
+        findPartialMatch: findPartialCodeBlock(),
+        lookBack: codeBlockLookBack(),
+      },
+    ],
+    isStreamFinished: true,
+  });
+
   return (
     <div 
       className="group relative px-6 py-4 hover:bg-gray-50/50 transition-colors duration-200"
@@ -86,8 +112,11 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
         <div className={`prose prose-sm max-w-none leading-relaxed ${
           isError ? 'text-red-800 bg-red-50 p-4 rounded-xl border border-red-200' : 'text-gray-900'
         }`}>
-          <div className="whitespace-pre-wrap break-words text-sm leading-relaxed">
-            {message.content}
+          <div className="leading-relaxed">
+            {blockMatches.map((blockMatch, index) => {
+              const Component = blockMatch.block.component;
+              return <Component key={index} blockMatch={blockMatch} />;
+            })}
           </div>
         </div>
 

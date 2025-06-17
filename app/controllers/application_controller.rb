@@ -5,7 +5,7 @@ class ApplicationController < ActionController::Base
   inertia_share do
     {
       logged_in: user_signed_in?,
-      llm_models: LlmModels::BaseModel.frontend_options
+      llm_models: LlmModels::BaseModel.available_models.map(&:frontend_options)
     }
   end
 
