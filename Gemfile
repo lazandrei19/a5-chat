@@ -63,7 +63,7 @@ group :test do
   gem "selenium-webdriver"
 end
 
-gem "ruby_llm", "~> 1.3"
+gem "ruby_llm", "~> 1.4"
 
 gem "inertia_rails", "~> 3.8"
 
